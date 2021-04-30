@@ -8,7 +8,7 @@ namespace PasswordCracker
         {
             BruteForce.StartUp();
             string password = BruteForce.SelectPasswordOption();
-            BruteForce.Run()
+            BruteForce.Run(password);
         }
     }
 }
