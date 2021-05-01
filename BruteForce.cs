@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,10 +9,11 @@ namespace PasswordCracker
 {
     class BruteForce
     {
-
         public static bool found = false;
         public static int attempts = 0;
         public static string password = "";
+        public static StringBuilder guessedPassword = new StringBuilder();
+        const string siftString = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[]{};:\"'/?>.<,|\\~`";
 
         public static void Start()
         {
@@ -56,117 +59,50 @@ namespace PasswordCracker
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            Thread proc1 = new Thread(() => CrackSectorA(String.Empty));
-            proc1.Start();
-            Thread proc2 = new Thread(() => CrackSectorB(String.Empty));
-            proc2.Start();
-            Thread proc3 = new Thread(() => CrackSectorC(String.Empty));
-            proc3.Start();
-            Thread proc4 = new Thread(() => CrackSectorD(String.Empty));
-            proc4.Start();
-
-            proc1.Join();
-            proc2.Join();
-            proc3.Join();
-            proc4.Join();
+            //Thread proc1 = new Thread(() => Crack(guessedPassword));
+            string correctPwd = Crack(guessedPassword);
 
             stopwatch.Stop();
             TimeSpan time = stopwatch.Elapsed;
             Console.WriteLine("Done!");
 
+            //TODO: Timeout after 30 seconds...
+
             switch (found)
             {
                 case true:
                     Console.WriteLine("Password was successfully identified!");
+                    Console.WriteLine($"The password is [{correctPwd}].");
                     break;
                 case false:
                     Console.WriteLine("Unable to identify password.");
                     break;
             }
             string totalTime = $"{time.Hours}:{time.Minutes}:{time.Seconds}.{time.Milliseconds}";
+
             Console.WriteLine($"Time Elapsed: {totalTime}");
             Console.WriteLine($"# of attempts: {attempts}");
         }
-
-        static void CrackSectorA(string input)
+        public static string Crack(StringBuilder input)
         {
-            attempts++;
-            if(input == password)
-            {
-                found = true;
-                return;
-            }
+            List<char> siftStringCollection = new List<char>();
+            string guessedPwdString = "";
 
-            char temp = ' ';
-            for (int i = 32; i < 56; i++)
+            for (int i = 0; i < siftString.Length; i++)
             {
-                if (found == true || input.Length >= password.Length)
-                { 
-                    return; 
-                }
-                temp = (char)i;
-                CrackSectorA(input + temp);
-            }
-        }
-        static void CrackSectorB(string input)
-        {
-            attempts++;
-            if (input == password)
-            {
-                found = true;
-                return;
-            }
+                siftStringCollection[0] = siftString[0];
+            }   
 
-            char temp = ' ';
-            for (int i = 56; i < 79; i++)
+            while(guessedPwdString != password)
             {
-                if (found == true || input.Length >= password.Length)
-                {
-                    return;
-                }
-                temp = (char)i;
-                CrackSectorA(input + temp);
+                found = false;
+                Random rnd = new Random();
+                guessedPassword.Append(siftStringCollection[]);
+                guessedPwdString += guessedPassword.ToString();
+                Console.WriteLine(guessedPassword);
             }
-        }
-        static void CrackSectorC(string input)
-        {
-            attempts++;
-            if (input == password)
-            {
-                found = true;
-                return;
-            }
-
-            char temp = ' ';
-            for (int i = 79; i < 103; i++)
-            {
-                if (found == true || input.Length >= password.Length)
-                {
-                    return;
-                }
-                temp = (char)i;
-                CrackSectorA(input + temp);
-            }
-        }
-        static void CrackSectorD(string input)
-        {
-            attempts++;
-            if (input == password)
-            {
-                found = true;
-                return;
-            }
-
-            char temp = ' ';
-            for (int i = 103; i < 127; i++)
-            {
-                if (found == true || input.Length >= password.Length)
-                {
-                    return;
-                }
-                temp = (char)i;
-                CrackSectorA(input + temp);
-            }
+            found = true;
+            return guessedPwdString;
         }
     }
 }

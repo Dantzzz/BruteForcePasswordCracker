@@ -24,11 +24,11 @@ namespace PasswordCracker
             Console.Clear();
             Console.WriteLine("Please enter a password: ");
             string password = Console.ReadLine();
-            while (password.Length < 8 || password.Length > 20)
-            {
-                Console.WriteLine("Password must be between 8 and 20 characters...\nPlease try again: ");
-                password = Console.ReadLine();
-            }
+            //while (password.Length < 8 || password.Length > 20)
+            //{
+            //    Console.WriteLine("Password must be between 8 and 20 characters...\nPlease try again: ");
+            //    password = Console.ReadLine();
+            //}
             return password;
         }
     }
