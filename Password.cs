@@ -7,7 +7,7 @@ namespace PasswordCracker
     {
         public static string GeneratePassword()
         {
-            const string charOptions = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_-{}[]?<>.?/,";
+            const string charOptions = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[]{};:\"'/?>.<,|\\~`";
             StringBuilder genPwd = new StringBuilder();
 
             for (int i = 0; i < 8; i++)
