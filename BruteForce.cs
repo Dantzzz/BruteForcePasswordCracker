@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,10 +9,12 @@ namespace PasswordCracker
 {
     class BruteForce
     {
-
         public static bool found = false;
         public static int attempts = 0;
         public static string password = "";
+        public static string correctPwd = "";
+        public static TimeSpan time = new TimeSpan();
+        const string siftString = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[]{};:\"'/?>.<,|\\~`";
 
         public static void Start()
         {
@@ -23,7 +27,7 @@ namespace PasswordCracker
             Console.Clear();
             Console.WriteLine("Press any key to start password cracker...");
             Console.ReadKey();
-            Run(password);
+            string correctPwd = Run(password);
         }
         static string SelectPasswordOption()
         {
@@ -48,125 +52,76 @@ namespace PasswordCracker
             }
             return password;
         }
-        static void Run(string pwd)
+        static string Run(string pwd)
         {
+            string correctPwd = "";
+            List<Thread> processes = new List<Thread>();
+
             Console.Clear();
             Console.WriteLine("In progress...");
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            Thread proc1 = new Thread(() => CrackSectorA(String.Empty));
-            proc1.Start();
-            Thread proc2 = new Thread(() => CrackSectorB(String.Empty));
-            proc2.Start();
-            Thread proc3 = new Thread(() => CrackSectorC(String.Empty));
-            proc3.Start();
-            Thread proc4 = new Thread(() => CrackSectorD(String.Empty));
-            proc4.Start();
+            Thread firstProcess = new Thread(() =>
+            {
+                string blank = "";
+                FwdCrack(blank);
+            });
 
-            proc1.Join();
-            proc2.Join();
-            proc3.Join();
-            proc4.Join();
+            Thread secondProcess = new Thread(() => 
+            {
+                string blank = "";
+                ReverseCrack(blank);
+            });
+
+            firstProcess.Start();
+            secondProcess.Start();
+            firstProcess.Join();
+            secondProcess.Join();
 
             stopwatch.Stop();
-            TimeSpan time = stopwatch.Elapsed;
+            time = stopwatch.Elapsed;
+            return correctPwd;
             Console.WriteLine("Done!");
 
+            //TODO: Timeout after 30 seconds...
+        }
+        public static void FwdCrack(string guess)
+        {
+            attempts++;
+            char temp = ' ';
+
+            if (guess == password)
+            {
+                found = true;
+                correctPwd = guess;
+                return;
+            }
+            for (int i = 0; i <= siftString.Length; i++)
+            {
+                if (found == true || guess.Length >= password.Length) return;
+                temp = (char)i;
+                FwdCrack(guess + temp);
+            }
+        }
+
+        public void Complete(string foundPassword)
+        {
             switch (found)
             {
                 case true:
                     Console.WriteLine("Password was successfully identified!");
+                    Console.WriteLine($"The password is [{correctPwd}].");
                     break;
                 case false:
                     Console.WriteLine("Unable to identify password.");
                     break;
             }
             string totalTime = $"{time.Hours}:{time.Minutes}:{time.Seconds}.{time.Milliseconds}";
+
             Console.WriteLine($"Time Elapsed: {totalTime}");
             Console.WriteLine($"# of attempts: {attempts}");
-        }
-
-        static void CrackSectorA(string input)
-        {
-            attempts++;
-            if(input == password)
-            {
-                found = true;
-                return;
-            }
-
-            char temp = ' ';
-            for (int i = 32; i < 56; i++)
-            {
-                if (found == true || input.Length >= password.Length)
-                { 
-                    return; 
-                }
-                temp = (char)i;
-                CrackSectorA(input + temp);
-            }
-        }
-        static void CrackSectorB(string input)
-        {
-            attempts++;
-            if (input == password)
-            {
-                found = true;
-                return;
-            }
-
-            char temp = ' ';
-            for (int i = 56; i < 79; i++)
-            {
-                if (found == true || input.Length >= password.Length)
-                {
-                    return;
-                }
-                temp = (char)i;
-                CrackSectorA(input + temp);
-            }
-        }
-        static void CrackSectorC(string input)
-        {
-            attempts++;
-            if (input == password)
-            {
-                found = true;
-                return;
-            }
-
-            char temp = ' ';
-            for (int i = 79; i < 103; i++)
-            {
-                if (found == true || input.Length >= password.Length)
-                {
-                    return;
-                }
-                temp = (char)i;
-                CrackSectorA(input + temp);
-            }
-        }
-        static void CrackSectorD(string input)
-        {
-            attempts++;
-            if (input == password)
-            {
-                found = true;
-                return;
-            }
-
-            char temp = ' ';
-            for (int i = 103; i < 127; i++)
-            {
-                if (found == true || input.Length >= password.Length)
-                {
-                    return;
-                }
-                temp = (char)i;
-                CrackSectorA(input + temp);
-            }
         }
     }
 }
