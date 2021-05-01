@@ -27,7 +27,8 @@ namespace PasswordCracker
             Console.Clear();
             Console.WriteLine("Press any key to start password cracker...");
             Console.ReadKey();
-            string correctPwd = Run(password);
+            correctPwd = Run(password);
+            Complete(correctPwd);
         }
         static string SelectPasswordOption()
         {
@@ -82,8 +83,8 @@ namespace PasswordCracker
 
             stopwatch.Stop();
             time = stopwatch.Elapsed;
-            return correctPwd;
             Console.WriteLine("Done!");
+            return correctPwd;
 
             //TODO: Timeout after 30 seconds...
         }
@@ -98,7 +99,7 @@ namespace PasswordCracker
                 correctPwd = guess;
                 return;
             }
-            for (int i = 0; i <= siftString.Length; i++)
+            for (int i = 32; i <= 126; i++)
             {
                 if (found == true || guess.Length >= password.Length) return;
                 temp = (char)i;
@@ -106,7 +107,26 @@ namespace PasswordCracker
             }
         }
 
-        public void Complete(string foundPassword)
+        public static void ReverseCrack(string guess)
+        {
+            attempts++;
+            char temp = ' ';
+
+            if (guess == password)
+            {
+                found = true;
+                correctPwd = guess;
+                return;
+            }
+            for (int i = 126; i >= 32; i--)
+            {
+                if (found == true || guess.Length >= password.Length) return;
+                temp = (char)i;
+                FwdCrack(guess + temp);
+            }
+        }
+
+        public static void Complete(string foundPassword)
         {
             switch (found)
             {
