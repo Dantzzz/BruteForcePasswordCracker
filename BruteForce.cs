@@ -12,7 +12,8 @@ namespace PasswordCracker
         public static bool found = false;
         public static int attempts = 0;
         public static string password = "";
-        public static StringBuilder guessedPassword = new StringBuilder();
+        public static string correctPwd = "";
+        public static TimeSpan time = new TimeSpan();
         const string siftString = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+[]{};:\"'/?>.<,|\\~`";
 
         public static void Start()
@@ -26,7 +27,7 @@ namespace PasswordCracker
             Console.Clear();
             Console.WriteLine("Press any key to start password cracker...");
             Console.ReadKey();
-            Run(password);
+            string correctPwd = Run(password);
         }
         static string SelectPasswordOption()
         {
@@ -51,23 +52,62 @@ namespace PasswordCracker
             }
             return password;
         }
-        static void Run(string pwd)
+        static string Run(string pwd)
         {
+            string correctPwd = "";
+            List<Thread> processes = new List<Thread>();
+
             Console.Clear();
             Console.WriteLine("In progress...");
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            //Thread proc1 = new Thread(() => Crack(guessedPassword));
-            string correctPwd = Crack(guessedPassword);
+            Thread firstProcess = new Thread(() =>
+            {
+                string blank = "";
+                FwdCrack(blank);
+            });
+
+            Thread secondProcess = new Thread(() => 
+            {
+                string blank = "";
+                ReverseCrack(blank);
+            });
+
+            firstProcess.Start();
+            secondProcess.Start();
+            firstProcess.Join();
+            secondProcess.Join();
 
             stopwatch.Stop();
-            TimeSpan time = stopwatch.Elapsed;
+            time = stopwatch.Elapsed;
+            return correctPwd;
             Console.WriteLine("Done!");
 
             //TODO: Timeout after 30 seconds...
+        }
+        public static void FwdCrack(string guess)
+        {
+            attempts++;
+            char temp = ' ';
 
+            if (guess == password)
+            {
+                found = true;
+                correctPwd = guess;
+                return;
+            }
+            for (int i = 0; i <= siftString.Length; i++)
+            {
+                if (found == true || guess.Length >= password.Length) return;
+                temp = (char)i;
+                FwdCrack(guess + temp);
+            }
+        }
+
+        public void Complete(string foundPassword)
+        {
             switch (found)
             {
                 case true:
@@ -82,27 +122,6 @@ namespace PasswordCracker
 
             Console.WriteLine($"Time Elapsed: {totalTime}");
             Console.WriteLine($"# of attempts: {attempts}");
-        }
-        public static string Crack(StringBuilder input)
-        {
-            List<char> siftStringCollection = new List<char>();
-            string guessedPwdString = "";
-
-            for (int i = 0; i < siftString.Length; i++)
-            {
-                siftStringCollection[0] = siftString[0];
-            }   
-
-            while(guessedPwdString != password)
-            {
-                found = false;
-                Random rnd = new Random();
-                guessedPassword.Append(siftStringCollection[]);
-                guessedPwdString += guessedPassword.ToString();
-                Console.WriteLine(guessedPassword);
-            }
-            found = true;
-            return guessedPwdString;
         }
     }
 }
